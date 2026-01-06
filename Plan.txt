@@ -1,0 +1,321 @@
+Smart Internal Workflow Approval System with File Upload & Search
+🔹 DAY 1 — Finalize Scope & Architecture
+Goal: Clear blueprint with all features mapped
+
+Tasks:
+
+Confirm features:
+
+✅ Login/Register (JWT)
+
+✅ Request submission + File Upload
+
+✅ Configurable workflow
+
+✅ Approval system
+
+✅ Advanced Search & Filtering
+
+✅ Audit log
+
+✅ Telegram reminder
+
+Choose DB: PostgreSQL (supports file paths + full-text search)
+
+Draw ERD with Attachment entity
+
+Decide roles: Staff / Manager / Admin
+
+Output:
+
+✔ Feature checklist with file upload & search included
+
+✔ ERD with attachments table
+
+✔ API endpoints sketch
+
+🔹 DAY 2 — Spring Boot Project Setup
+Goal: Foundation with file handling libraries
+
+Tasks:
+
+Create Spring Boot project
+
+Dependencies:
+
+Spring Web, Security, JPA, Validation
+
+Spring Content or Commons FileUpload for file handling
+
+Liquibase for DB migrations (optional)
+
+Setup DB connection
+
+Base package structure:
+
+text
+controller
+service
+repository
+entity
+dto
+security
+scheduler
+config
+util
+Output:
+
+✔ App runs
+
+✔ DB connected
+
+✔ File upload dependency ready
+
+🔹 DAY 3 — Authentication & User Roles
+Goal: Secure JWT system
+
+Tasks:
+
+User entity with enhanced profile fields
+
+Role enum
+
+JWT login & register
+
+Password hashing (BCrypt)
+
+Role-based access control
+
+Prepare user search endpoints (for managers/admins)
+
+Output:
+
+✔ Login/Register works
+
+✔ JWT protected endpoints
+
+✔ User search ready for implementation
+
+🔹 DAY 4 — Core Workflow + File Upload
+Goal: Request system with attachments
+
+Tasks:
+Entities:
+
+RequestType
+
+WorkflowStep
+
+Request
+
+Attachment (id, filename, filepath, request_id, upload_date)
+
+ApprovalLog
+
+File Upload Implementation:
+
+Create FileStorageService
+
+Configure upload directory (local/cloud)
+
+Add MAX_FILE_SIZE validation
+
+Attachment ↔ Request relationship
+
+Secure file access (only requester/approvers)
+
+Output:
+
+✔ Request submission with file attachments
+
+✔ Files saved securely
+
+✔ Workflow assignment works
+
+🔹 DAY 5 — Approval Logic + Search Foundation
+Goal: Approval system with searchable audit trail
+
+Tasks:
+Approval:
+
+Approve/Reject API
+
+Update workflow steps
+
+Save approval logs with comments
+
+Prevent invalid approvals
+
+Search Foundation:
+
+Create SearchSpecification class
+
+Implement JpaSpecificationExecutor in RequestRepository
+
+Basic search fields: title, status, requester, date range
+
+Full-text search setup for PostgreSQL
+
+Output:
+
+✔ Multi-step approval works
+
+✔ Search-ready backend
+
+✔ Full audit history
+
+🔹 DAY 6 — Telegram Notification + Advanced Search
+Goal: SLA reminders + powerful search
+
+Tasks:
+Telegram:
+
+Create Telegram bot
+
+Store chat IDs per user
+
+Add SLA fields to workflow steps
+
+Spring Scheduler for overdue reminders
+
+Advanced Search API:
+
+/api/requests/search endpoint
+
+Support:
+
+Keyword search (title, description)
+
+Filter by: status, type, date range, requester
+
+Sort by: date, priority, status
+
+Pagination support
+
+File content search (bonus: if using text files)
+
+Output:
+
+✔ Telegram reminders work
+
+✔ Powerful search API ready
+
+✔ Timer logic functioning
+
+🔹 DAY 7 — Frontend Core Pages + Search UI
+Goal: Functional pages with search integration
+
+Pages:
+
+Login
+
+Submit Request (with file upload component)
+
+My Requests (with search bar)
+
+Pending Approvals
+
+Approval History (with filters)
+
+Search UI Components:
+
+Search input with auto-suggest
+
+Filter sidebar (status, type, date picker)
+
+Results table with sortable columns
+
+Output:
+
+✔ End-to-end flow works
+
+✔ Search UI implemented
+
+✔ File upload in UI
+
+🔹 DAY 8 — UI Polish + Validation + Advanced Features
+Goal: Demo-ready with all bonus features
+
+Tasks:
+
+Form validation (file type/size)
+
+Error messages
+
+Status badges
+
+Role-based UI rendering
+
+Drag & drop file upload (optional)
+
+Search result highlighting
+
+Export search results (CSV)
+
+Responsive design
+
+Output:
+
+✔ Clean, polished UI
+
+✔ All bonus features visible
+
+✔ Mobile-friendly
+
+🔹 DAY 9 — Deployment
+Goal: Live demo link
+
+Backend:
+
+Deploy to Railway/Render
+
+Setup env variables
+
+Connect cloud DB
+
+Configure cloud storage (AWS S3 or similar for files)
+
+Frontend:
+
+Deploy to Vercel/Netlify
+
+Connect to backend
+
+Configure CORS
+
+Output:
+
+✔ Live URLs (backend + frontend)
+
+✔ File upload works in production
+
+✔ Search functional
+
+🔹 DAY 10 — Testing, Documentation, Rehearsal
+Goal: Interview ready
+
+Tasks:
+
+Smoke test all features
+
+Create simple API documentation (Postman/OpenAPI)
+
+Prepare demo script highlighting:
+
+File upload
+
+Advanced search
+
+Telegram integration
+
+Git cleanup: ensure clean commit history
+
+Practice demo (5-7 minutes)
+
+Output:
+
+✔ Bug-free demo
+
+✔ Clear documentation
+
+✔ Confident presentation
