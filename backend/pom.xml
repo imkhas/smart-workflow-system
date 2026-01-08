@@ -85,25 +85,14 @@
             <version>2.15.1</version>
         </dependency>
         
-        <!-- Telegram Bot -->
+        <!-- TELEGRAM BOT TEMPORARILY REMOVED - Add back later when needed -->
+        <!--
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>6.9.7.1</version>
         </dependency>
-        
-        <!-- JAXB API for Java 11+ (Required for Telegram Bot) -->
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.2</version>
-        </dependency>
+        -->
         
         <!-- Dev Tools -->
         <dependency>
