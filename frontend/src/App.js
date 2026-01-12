@@ -5,6 +5,10 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import NewRequest from './pages/Newrequest';
+import MyRequests from './pages/MyRequests';
+import PendingApprovals from './pages/PendingApprovals';
+import RequestDetails from './pages/RequestDetails';
 import './assets/styles/App.css';
 
 function App() {
@@ -22,6 +26,38 @@ function App() {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/requests/new"
+            element={
+              <PrivateRoute>
+                <NewRequest />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <PrivateRoute>
+                <MyRequests />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/requests/:id"
+            element={
+              <PrivateRoute>
+                <RequestDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/approvals/pending"
+            element={
+              <PrivateRoute>
+                <PendingApprovals />
               </PrivateRoute>
             }
           />
