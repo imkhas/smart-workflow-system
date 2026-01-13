@@ -29,8 +29,8 @@ public class TelegramConfig {
     @Column(nullable = false, unique = true)
     private String chatId;
 
-    @Column(nullable = false)
-    private Boolean notificationsEnabled = true;
+    @Column(name = "notifications_enabled", nullable = false)
+    private boolean enabled = true;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

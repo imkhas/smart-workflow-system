@@ -24,6 +24,7 @@ public class RequestResponse {
     private LocalDateTime completedAt;
     private LocalDateTime createdAt;
     private List<ApprovalLogResponse> approvalLogs;
+    private List<AttachmentResponse> attachments;
 
     public static RequestResponse fromEntity(Request request) {
         RequestResponse response = new RequestResponse();
@@ -47,6 +48,14 @@ public class RequestResponse {
             response.setApprovalLogs(
                     request.getApprovalLogs().stream()
                             .map(ApprovalLogResponse::fromEntity)
+                            .collect(Collectors.toList()));
+        }
+
+        // Include attachments
+        if (request.getAttachments() != null) {
+            response.setAttachments(
+                    request.getAttachments().stream()
+                            .map(AttachmentResponse::fromEntity)
                             .collect(Collectors.toList()));
         }
 

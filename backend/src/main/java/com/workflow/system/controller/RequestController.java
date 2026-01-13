@@ -49,6 +49,27 @@ public class RequestController {
         return ResponseEntity.ok(new MessageResponse("File uploaded successfully"));
     }
 
+    @GetMapping("/{requestId}/attachments/{attachmentId}/download")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadAttachment(
+            @PathVariable Long requestId,
+            @PathVariable Long attachmentId) {
+
+        org.springframework.core.io.Resource resource = requestService.downloadAttachment(requestId, attachmentId);
+        com.workflow.system.entity.Attachment attachment = requestService.getAttachmentMetadata(attachmentId);
+
+        String contentType = attachment.getContentType();
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + attachment.getOriginalFilename() + "\"")
+                .body(resource);
+    }
+
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<RequestResponse>> getMyRequests() {

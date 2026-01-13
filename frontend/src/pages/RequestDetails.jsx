@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import requestService from '../services/requestService';
 import approvalService from '../services/approvalService';
+import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const RequestDetails = () => {
@@ -16,8 +17,35 @@ const RequestDetails = () => {
     const [processing, setProcessing] = useState(false);
 
     // Approval form state
-    const [comments, setComments] = useState('');
+    const [comments, setComments] = useState(''); // For approval/rejection
     const [showRejectModal, setShowRejectModal] = useState(false);
+
+    // Comments tab state
+    const [commentsList, setCommentsList] = useState([]);
+    const [newComment, setNewComment] = useState('');
+
+    useEffect(() => {
+        if (id) fetchComments();
+    }, [id]);
+
+    const fetchComments = async () => {
+        try {
+            const response = await api.get(`/requests/${id}/comments`);
+            setCommentsList(response.data);
+        } catch (error) {
+            console.error('Failed to fetch comments');
+        }
+    };
+
+    const handleAddComment = async () => {
+        try {
+            const response = await api.post(`/requests/${id}/comments`, { content: newComment });
+            setCommentsList([...commentsList, response.data]);
+            setNewComment('');
+        } catch (error) {
+            alert('Failed to add comment');
+        }
+    };
 
     useEffect(() => {
         fetchRequestDetails();
@@ -66,6 +94,26 @@ const RequestDetails = () => {
         } finally {
             setProcessing(false);
             setShowRejectModal(false);
+        }
+    };
+
+    const handleDownload = async (file) => {
+        try {
+            const response = await api.get(`/requests/${id}/attachments/${file.id}/download`, {
+                responseType: 'blob', // Important for file download
+            });
+
+            // Create a blob link to download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', file.fileName); // or any other extension
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (err) {
+            console.error('Download failed', err);
+            alert('Failed to download file');
         }
     };
 
@@ -173,6 +221,54 @@ const RequestDetails = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* Comments Card */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h3>Comments</h3>
+                            </div>
+                            <div className="card-body">
+                                <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    {commentsList && commentsList.length > 0 ? (
+                                        commentsList.map((comment) => (
+                                            <div key={comment.id} style={{
+                                                padding: '0.75rem',
+                                                backgroundColor: 'var(--color-bg-secondary)',
+                                                borderRadius: '6px',
+                                                borderLeft: `3px solid var(--color-primary)`
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                                                    <strong>{comment.authorName}</strong>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+                                                        {new Date(comment.createdAt).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div style={{ whiteSpace: 'pre-wrap' }}>{comment.content}</div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>No comments yet.</p>
+                                    )}
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <textarea
+                                        className="form-control"
+                                        rows="2"
+                                        placeholder="Write a comment..."
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                    ></textarea>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        style={{ marginTop: '0.5rem' }}
+                                        onClick={handleAddComment}
+                                        disabled={!newComment.trim()}
+                                    >
+                                        Post Comment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Sidebar / Actions */}
@@ -221,9 +317,47 @@ const RequestDetails = () => {
                                 <h3>Attachments</h3>
                             </div>
                             <div className="card-body">
-                                <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
-                                    No attachments found.
-                                </p>
+                                {request.attachments && request.attachments.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        {request.attachments.map((file) => (
+                                            <div key={file.id} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                padding: '0.75rem',
+                                                backgroundColor: 'var(--color-bg-secondary)',
+                                                borderRadius: '6px',
+                                                border: '1px solid var(--color-border)'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div style={{ fontSize: '1.5rem' }}>📄</div>
+                                                    <div>
+                                                        <div style={{ fontWeight: '500' }}>{file.fileName}</div>
+                                                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                                                            {file.size ? Math.round(file.size / 1024) + ' KB' : 'Unknown size'} • {new Date(file.uploadedAt).toLocaleDateString()}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <a
+                                                    href={`${api.defaults.baseURL}/requests/${request.id}/attachments/${file.id}/download`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="btn btn-sm btn-primary"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handleDownload(file);
+                                                    }}
+                                                >
+                                                    ⬇️
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+                                        No attachments found.
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -231,31 +365,33 @@ const RequestDetails = () => {
             </div>
 
             {/* Simple Reject Modal/Overlay logic if needed, or just use the textarea above directly */}
-            {showRejectModal && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <div className="modal-header">
-                            <h3>Reject Request</h3>
-                        </div>
-                        <div className="modal-body">
-                            <p>Please confirm you want to reject this request. Comments are required.</p>
-                            <textarea
-                                className="form-control"
-                                rows="3"
-                                value={comments}
-                                onChange={(e) => setComments(e.target.value)}
-                                placeholder="Reason for rejection..."
-                                autoFocus
-                            ></textarea>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setShowRejectModal(false)}>Cancel</button>
-                            <button className="btn btn-danger" onClick={handleReject}>Confirm Reject</button>
+            {
+                showRejectModal && (
+                    <div className="modal-backdrop">
+                        <div className="modal">
+                            <div className="modal-header">
+                                <h3>Reject Request</h3>
+                            </div>
+                            <div className="modal-body">
+                                <p>Please confirm you want to reject this request. Comments are required.</p>
+                                <textarea
+                                    className="form-control"
+                                    rows="3"
+                                    value={comments} // This reuses the 'comments' state meant for approval/rejection logic. 
+                                    onChange={(e) => setComments(e.target.value)}
+                                    placeholder="Reason for rejection..."
+                                    autoFocus
+                                ></textarea>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowRejectModal(false)}>Cancel</button>
+                                <button className="btn btn-danger" onClick={handleReject}>Confirm Reject</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

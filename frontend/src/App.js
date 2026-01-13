@@ -5,7 +5,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import NewRequest from './pages/Newrequest';
+import NewRequest from './pages/NewRequest';
 import MyRequests from './pages/MyRequests';
 import PendingApprovals from './pages/PendingApprovals';
 import RequestDetails from './pages/RequestDetails';

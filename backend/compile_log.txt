@@ -1,0 +1,53 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< com.workflow:smart-workflow-system >-----------------
+[INFO] Building Smart Workflow System 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ smart-workflow-system ---
+[INFO] Deleting C:\Users\imran\smart-workflow-system\backend\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ smart-workflow-system ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ smart-workflow-system ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 70 source files with javac [debug release 17] to target\classes
+[INFO] /C:/Users/imran/smart-workflow-system/backend/src/main/java/com/workflow/system/service/TelegramService.java: C:\Users\imran\smart-workflow-system\backend\src\main\java\com\workflow\system\service\TelegramService.java uses or overrides a deprecated API.
+[INFO] /C:/Users/imran/smart-workflow-system/backend/src/main/java/com/workflow/system/service/TelegramService.java: Recompile with -Xlint:deprecation for details.
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /C:/Users/imran/smart-workflow-system/backend/src/main/java/com/workflow/system/security/UserDetailsImpl.java:[16,1] Not generating hashCode: One of equals or hashCode exists. You should either write both of these or none of these (in the latter case, lombok generates them).
+[INFO] 1 warning
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/imran/smart-workflow-system/backend/src/main/java/com/workflow/system/service/FileStorageService.java:[115,19] constructor ResourceNotFoundException in class com.workflow.system.exception.ResourceNotFoundException cannot be applied to given types;
+  required: java.lang.String
+  found:    java.lang.String,java.net.MalformedURLException
+  reason: actual and formal argument lists differ in length
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.012 s
+[INFO] Finished at: 2026-01-13T13:23:05+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project smart-workflow-system: Compilation failure
+[ERROR] /C:/Users/imran/smart-workflow-system/backend/src/main/java/com/workflow/system/service/FileStorageService.java:[115,19] constructor ResourceNotFoundException in class com.workflow.system.exception.ResourceNotFoundException cannot be applied to given types;
+[ERROR]   required: java.lang.String
+[ERROR]   found:    java.lang.String,java.net.MalformedURLException
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] 
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

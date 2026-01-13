@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import requestService from '../services/requestService';
 import api from '../services/api';
+import FileUploader from '../components/FileUploader';
 
 const NewRequest = () => {
     const navigate = useNavigate();
@@ -38,8 +39,8 @@ const NewRequest = () => {
         });
     };
 
-    const handleFileChange = (e) => {
-        setSelectedFile(e.target.files[0]);
+    const handleFileSelect = (file) => {
+        setSelectedFile(file);
     };
 
     const handleSubmit = async (e) => {
@@ -148,14 +149,16 @@ const NewRequest = () => {
                                 </select>
                             </div>
 
+                            import FileUploader from '../components/FileUploader';
+
+                            // ... (in component body)
+
                             <div className="form-group">
-                                <label htmlFor="file">Attachment (Optional)</label>
-                                <input
-                                    type="file"
-                                    id="file"
-                                    className="form-control"
-                                    onChange={handleFileChange}
+                                <label>Attachment (Optional)</label>
+                                <FileUploader
+                                    onFileSelect={handleFileSelect}
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt"
+                                    label="Drag & drop your document here, or click to browse"
                                 />
                                 <small style={{ color: 'var(--color-text-secondary)', display: 'block', marginTop: '8px' }}>
                                     Allowed: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, TXT (Max 10MB)

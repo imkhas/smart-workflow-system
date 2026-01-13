@@ -37,6 +37,9 @@ public class RequestService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private AttachmentRepository attachmentRepository;
+
     private User getCurrentUser() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
@@ -102,7 +105,7 @@ public class RequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
         // Check access rights
-        if (!request.getRequester().getId().equals(currentUser.getId()) 
+        if (!request.getRequester().getId().equals(currentUser.getId())
                 && !hasApprovalRights(currentUser, request)) {
             throw new AccessDeniedException("You don't have permission to view this request");
         }
@@ -126,9 +129,12 @@ public class RequestService {
             throw new IllegalStateException("Cannot update submitted requests");
         }
 
-        if (dto.getTitle() != null) request.setTitle(dto.getTitle());
-        if (dto.getDescription() != null) request.setDescription(dto.getDescription());
-        if (dto.getPriority() != null) request.setPriority(dto.getPriority());
+        if (dto.getTitle() != null)
+            request.setTitle(dto.getTitle());
+        if (dto.getDescription() != null)
+            request.setDescription(dto.getDescription());
+        if (dto.getPriority() != null)
+            request.setPriority(dto.getPriority());
 
         Request updatedRequest = requestRepository.save(request);
         return RequestResponse.fromEntity(updatedRequest);
@@ -181,18 +187,44 @@ public class RequestService {
         requestRepository.delete(request);
     }
 
+    public org.springframework.core.io.Resource downloadAttachment(Long requestId, Long attachmentId) {
+        User currentUser = getCurrentUser();
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+        // Check view access rights
+        if (!request.getRequester().getId().equals(currentUser.getId())
+                && !hasApprovalRights(currentUser, request)) {
+            throw new AccessDeniedException("You don't have permission to access attachments for this request");
+        }
+
+        Attachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));
+
+        if (!attachment.getRequest().getId().equals(requestId)) {
+            throw new IllegalArgumentException("Attachment does not belong to the specified request");
+        }
+
+        return fileStorageService.loadFileAsResource(attachment.getStoredFilename());
+    }
+
+    public Attachment getAttachmentMetadata(Long attachmentId) {
+        return attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));
+    }
+
     private boolean hasApprovalRights(User user, Request request) {
         // Admins can view all
         if (user.getRole().name().equals("ADMIN")) {
             return true;
         }
-        
+
         // Managers can view requests in their approval workflow
         if (user.getRole().name().equals("MANAGER") && request.getWorkflow() != null) {
             return request.getWorkflow().getSteps().stream()
                     .anyMatch(step -> step.getApproverRole().equals(user.getRole()));
         }
-        
+
         return false;
     }
 }

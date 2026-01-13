@@ -59,7 +59,7 @@ public class FileStorageService {
 
         // Validate file type (optional - add allowed extensions)
         String extension = FilenameUtils.getExtension(originalFilename);
-        String[] allowedExtensions = {"pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "txt"};
+        String[] allowedExtensions = { "pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "txt" };
         boolean isAllowed = false;
         for (String ext : allowedExtensions) {
             if (ext.equalsIgnoreCase(extension)) {
@@ -98,5 +98,21 @@ public class FileStorageService {
 
     public Path loadFileAsPath(String filename) {
         return this.fileStorageLocation.resolve(filename).normalize();
+    }
+
+    public org.springframework.core.io.Resource loadFileAsResource(String filename) {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(filename).normalize();
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(
+                    filePath.toUri());
+
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new com.workflow.system.exception.ResourceNotFoundException("File not found " + filename);
+            }
+        } catch (java.net.MalformedURLException ex) {
+            throw new com.workflow.system.exception.ResourceNotFoundException("File not found " + filename, ex);
+        }
     }
 }

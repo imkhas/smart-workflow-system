@@ -31,6 +31,12 @@ public class ApprovalService {
     @Autowired
     private ApprovalLogRepository approvalLogRepository;
 
+    @Autowired
+    private TelegramService telegramService;
+
+    @Autowired
+    private NotificationService notificationService;
+
     private User getCurrentUser() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
@@ -96,6 +102,23 @@ public class ApprovalService {
         }
 
         requestRepository.save(request);
+
+        // Send Telegram notification to request submitter
+        try {
+            telegramService.sendNotificationToUser(
+                    request.getRequester(),
+                    "✅ Your request '" + request.getTitle() + "' has been approved!\n" +
+                            "Approver: " + currentUser.getFullName());
+        } catch (Exception e) {
+            // Log but don't fail the approval if notification fails
+            System.err.println("Failed to send Telegram notification: " + e.getMessage());
+        }
+
+        // Create in-app notification
+        notificationService.createNotification(
+                request.getRequester(),
+                "✅ Your request '" + request.getTitle() + "' has been approved by " + currentUser.getFullName(),
+                request.getId());
     }
 
     @Transactional
@@ -114,6 +137,26 @@ public class ApprovalService {
         request.setCompletedAt(LocalDateTime.now());
 
         requestRepository.save(request);
+
+        // Send Telegram notification to request submitter
+        try {
+            telegramService.sendNotificationToUser(
+                    request.getRequester(),
+                    "❌ Your request '" + request.getTitle() + "' has been rejected.\n" +
+                            "Rejected by: " + currentUser.getFullName() +
+                            (dto.getComments() != null && !dto.getComments().isEmpty()
+                                    ? "\nReason: " + dto.getComments()
+                                    : ""));
+        } catch (Exception e) {
+            // Log but don't fail the rejection if notification fails
+            System.err.println("Failed to send Telegram notification: " + e.getMessage());
+        }
+
+        // Create in-app notification
+        notificationService.createNotification(
+                request.getRequester(),
+                "❌ Your request '" + request.getTitle() + "' has been rejected by " + currentUser.getFullName(),
+                request.getId());
     }
 
     private void validateApprovalAccess(User user, Request request) {
