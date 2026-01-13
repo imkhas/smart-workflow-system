@@ -85,14 +85,14 @@
             <version>2.15.1</version>
         </dependency>
         
-        <!-- TELEGRAM BOT TEMPORARILY REMOVED - Add back later when needed -->
-        <!--
+        
+        <!-- Telegram Bot -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>6.9.7.1</version>
         </dependency>
-        -->
+
         
         <!-- Dev Tools -->
         <dependency>

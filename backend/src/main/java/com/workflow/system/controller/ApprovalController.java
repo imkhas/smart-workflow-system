@@ -1,6 +1,7 @@
 package com.workflow.system.controller;
 
 import com.workflow.system.dto.request.ApprovalDTO;
+import com.workflow.system.dto.request.BulkApprovalDTO;
 import com.workflow.system.dto.response.MessageResponse;
 import com.workflow.system.dto.response.RequestResponse;
 import com.workflow.system.service.ApprovalService;
@@ -47,5 +48,19 @@ public class ApprovalController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<RequestResponse>> getApprovalHistory() {
         return ResponseEntity.ok(approvalService.getApprovalHistory());
+    }
+
+    @PostMapping("/bulk/approve")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> bulkApprove(@Valid @RequestBody BulkApprovalDTO dto) {
+        int count = approvalService.bulkApprove(dto);
+        return ResponseEntity.ok(new MessageResponse(count + " request(s) approved successfully"));
+    }
+
+    @PostMapping("/bulk/reject")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> bulkReject(@Valid @RequestBody BulkApprovalDTO dto) {
+        int count = approvalService.bulkReject(dto);
+        return ResponseEntity.ok(new MessageResponse(count + " request(s) rejected successfully"));
     }
 }

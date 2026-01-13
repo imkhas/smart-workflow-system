@@ -9,6 +9,10 @@ import NewRequest from './pages/Newrequest';
 import MyRequests from './pages/MyRequests';
 import PendingApprovals from './pages/PendingApprovals';
 import RequestDetails from './pages/RequestDetails';
+import ApprovalHistory from './pages/ApprovalHistory';
+import SearchRequests from './pages/SearchRequests';
+import TelegramSettings from './pages/TelegramSettings';
+import NotFound from './pages/NotFound';
 import './assets/styles/App.css';
 
 function App() {
@@ -61,9 +65,36 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/approvals/history"
+            element={
+              <PrivateRoute>
+                <ApprovalHistory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <PrivateRoute>
+                <SearchRequests />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/telegram"
+            element={
+              <PrivateRoute>
+                <TelegramSettings />
+              </PrivateRoute>
+            }
+          />
 
           {/* Redirect root to dashboard or login */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* 404 Not Found */}
+          <Route path="*" element={<NotFound />} />
 
           {/* 404 - Not Found */}
           <Route

@@ -76,7 +76,7 @@ public class ApprovalService {
         validateApprovalAccess(currentUser, request);
 
         // Create log entry
-        createApprovalLog(request, currentUser, ApprovalAction.APPROVE, dto.getComments());
+        createApprovalLog(request, currentUser, ApprovalAction.APPROVED, dto.getComments());
 
         // Check if there are more steps
         int currentStep = request.getCurrentStep();
@@ -107,7 +107,7 @@ public class ApprovalService {
         validateApprovalAccess(currentUser, request);
 
         // Create log entry
-        createApprovalLog(request, currentUser, ApprovalAction.REJECT, dto.getComments());
+        createApprovalLog(request, currentUser, ApprovalAction.REJECTED, dto.getComments());
 
         // Update request status
         request.setStatus(RequestStatus.REJECTED);
@@ -133,7 +133,15 @@ public class ApprovalService {
         log.setApprover(approver);
         log.setAction(action);
         log.setComments(comments);
-        log.setStepNumber(request.getCurrentStep());
+
+        // Set the workflow step based on current step
+        if (request.getWorkflow() != null && request.getCurrentStep() != null) {
+            request.getWorkflow().getSteps().stream()
+                    .filter(step -> step.getStepOrder().equals(request.getCurrentStep()))
+                    .findFirst()
+                    .ifPresent(log::setWorkflowStep);
+        }
+
         log.setActionDate(LocalDateTime.now());
         approvalLogRepository.save(log);
     }
@@ -146,5 +154,39 @@ public class ApprovalService {
                 .map(log -> RequestResponse.fromEntity(log.getRequest()))
                 .distinct() // Remove duplicates if approved multiple times? (unlikely but safe)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public int bulkApprove(com.workflow.system.dto.request.BulkApprovalDTO dto) {
+        int count = 0;
+        for (Long requestId : dto.getRequestIds()) {
+            try {
+                ApprovalDTO approvalDTO = new ApprovalDTO();
+                approvalDTO.setComments(dto.getComments());
+                approveRequest(requestId, approvalDTO);
+                count++;
+            } catch (Exception e) {
+                // Log error but continue with other requests
+                System.err.println("Failed to approve request " + requestId + ": " + e.getMessage());
+            }
+        }
+        return count;
+    }
+
+    @Transactional
+    public int bulkReject(com.workflow.system.dto.request.BulkApprovalDTO dto) {
+        int count = 0;
+        for (Long requestId : dto.getRequestIds()) {
+            try {
+                ApprovalDTO approvalDTO = new ApprovalDTO();
+                approvalDTO.setComments(dto.getComments());
+                rejectRequest(requestId, approvalDTO);
+                count++;
+            } catch (Exception e) {
+                // Log error but continue with other requests
+                System.err.println("Failed to reject request " + requestId + ": " + e.getMessage());
+            }
+        }
+        return count;
     }
 }

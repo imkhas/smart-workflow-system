@@ -106,35 +106,73 @@ const RequestDetails = () => {
 
                 <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', gap: 'var(--spacing-lg)' }}>
                     {/* Main Content */}
-                    <div className="card">
-                        <div className="card-body">
-                            <h2 style={{ marginBottom: '1rem' }}>{request.title}</h2>
-                            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem', whiteSpace: 'pre-wrap' }}>
-                                {request.description}
-                            </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                        <div className="card">
+                            <div className="card-body">
+                                <h2 style={{ marginBottom: '1rem' }}>{request.title}</h2>
+                                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem', whiteSpace: 'pre-wrap' }}>
+                                    {request.description}
+                                </p>
 
-                            <div className="divider"></div>
+                                <div className="divider"></div>
 
-                            <h3>Details</h3>
-                            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-                                <div>
-                                    <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Type</label>
-                                    <div>{request.requestTypeName}</div>
-                                </div>
-                                <div>
-                                    <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Priority</label>
-                                    <div>{request.priority}</div>
-                                </div>
-                                <div>
-                                    <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Submitted By</label>
-                                    <div>{request.requesterName}</div>
-                                </div>
-                                <div>
-                                    <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Date</label>
-                                    <div>{new Date(request.submittedAt).toLocaleDateString()}</div>
+                                <h3>Details</h3>
+                                <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                                    <div>
+                                        <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Type</label>
+                                        <div>{request.requestTypeName}</div>
+                                    </div>
+                                    <div>
+                                        <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Priority</label>
+                                        <div>{request.priority}</div>
+                                    </div>
+                                    <div>
+                                        <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Submitted By</label>
+                                        <div>{request.requesterName}</div>
+                                    </div>
+                                    <div>
+                                        <label style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Date</label>
+                                        <div>{new Date(request.submittedAt).toLocaleDateString()}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Approval History */}
+                        {request.approvalLogs && request.approvalLogs.length > 0 && (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h3>Approval History</h3>
+                                </div>
+                                <div className="card-body">
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        {request.approvalLogs.map((log, index) => (
+                                            <div key={log.id} style={{
+                                                padding: '1rem',
+                                                borderLeft: `3px solid ${log.action === 'APPROVE' ? 'var(--color-success)' : 'var(--color-danger)'}`,
+                                                backgroundColor: 'var(--color-bg-secondary)',
+                                                borderRadius: '4px'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                                    <strong>{log.approverName}</strong>
+                                                    <span className={`badge ${log.action === 'APPROVE' ? 'badge-success' : 'badge-danger'}`}>
+                                                        {log.action}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
+                                                    Step {log.stepNumber} • {new Date(log.actionDate).toLocaleString()}
+                                                </div>
+                                                {log.comments && (
+                                                    <div style={{ fontStyle: 'italic', color: 'var(--color-text-primary)' }}>
+                                                        "{log.comments}"
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Sidebar / Actions */}

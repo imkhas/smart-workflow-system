@@ -6,6 +6,8 @@ import com.workflow.system.entity.enums.RequestStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class RequestResponse {
@@ -21,9 +23,7 @@ public class RequestResponse {
     private LocalDateTime submittedAt;
     private LocalDateTime completedAt;
     private LocalDateTime createdAt;
-
-    // We can add attachment summaries and logs separately or here if needed
-    // For now keeping it simple for lists
+    private List<ApprovalLogResponse> approvalLogs;
 
     public static RequestResponse fromEntity(Request request) {
         RequestResponse response = new RequestResponse();
@@ -41,6 +41,15 @@ public class RequestResponse {
         response.setSubmittedAt(request.getSubmittedAt());
         response.setCompletedAt(request.getCompletedAt());
         response.setCreatedAt(request.getCreatedAt());
+
+        // Include approval logs
+        if (request.getApprovalLogs() != null) {
+            response.setApprovalLogs(
+                    request.getApprovalLogs().stream()
+                            .map(ApprovalLogResponse::fromEntity)
+                            .collect(Collectors.toList()));
+        }
+
         return response;
     }
 }
