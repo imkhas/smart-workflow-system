@@ -10,7 +10,7 @@ const approvalService = {
     // Approve a request
     approveRequest: async (requestId, comments) => {
         const response = await api.post(`/approvals/${requestId}/approve`, {
-            action: 'APPROVE',
+            action: 'APPROVED',
             comments
         });
         return response.data;
@@ -19,7 +19,7 @@ const approvalService = {
     // Reject a request
     rejectRequest: async (requestId, comments) => {
         const response = await api.post(`/approvals/${requestId}/reject`, {
-            action: 'REJECT',
+            action: 'REJECTED',
             comments
         });
         return response.data;

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -12,6 +13,8 @@ import RequestDetails from './pages/RequestDetails';
 import ApprovalHistory from './pages/ApprovalHistory';
 import SearchRequests from './pages/SearchRequests';
 import TelegramSettings from './pages/TelegramSettings';
+import Profile from './pages/Profile';
+import Members from './pages/Members';
 import NotFound from './pages/NotFound';
 import './assets/styles/App.css';
 
@@ -29,7 +32,19 @@ function App() {
             path="/dashboard"
             element={
               <PrivateRoute>
-                <Dashboard />
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/members"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Members />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -37,7 +52,9 @@ function App() {
             path="/requests/new"
             element={
               <PrivateRoute>
-                <NewRequest />
+                <Layout>
+                  <NewRequest />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -45,7 +62,9 @@ function App() {
             path="/requests"
             element={
               <PrivateRoute>
-                <MyRequests />
+                <Layout>
+                  <MyRequests />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -53,7 +72,9 @@ function App() {
             path="/requests/:id"
             element={
               <PrivateRoute>
-                <RequestDetails />
+                <Layout>
+                  <RequestDetails />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -61,7 +82,9 @@ function App() {
             path="/approvals/pending"
             element={
               <PrivateRoute>
-                <PendingApprovals />
+                <Layout>
+                  <PendingApprovals />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -69,7 +92,9 @@ function App() {
             path="/approvals/history"
             element={
               <PrivateRoute>
-                <ApprovalHistory />
+                <Layout>
+                  <ApprovalHistory />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -77,7 +102,9 @@ function App() {
             path="/search"
             element={
               <PrivateRoute>
-                <SearchRequests />
+                <Layout>
+                  <SearchRequests />
+                </Layout>
               </PrivateRoute>
             }
           />
@@ -85,41 +112,30 @@ function App() {
             path="/settings/telegram"
             element={
               <PrivateRoute>
-                <TelegramSettings />
+                <Layout>
+                  <TelegramSettings />
+                </Layout>
               </PrivateRoute>
             }
           />
 
-          {/* Redirect root to dashboard or login */}
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           {/* 404 Not Found */}
           <Route path="*" element={<NotFound />} />
 
-          {/* 404 - Not Found */}
-          <Route
-            path="*"
-            element={
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '100vh',
-                textAlign: 'center',
-                padding: 'var(--spacing-xl)'
-              }}>
-                <h1 style={{ fontSize: '6rem', margin: 0 }}>404</h1>
-                <h2 style={{ color: 'var(--color-text-secondary)' }}>Page Not Found</h2>
-                <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>
-                  The page you're looking for doesn't exist.
-                </p>
-                <a href="/dashboard" className="btn btn-primary">
-                  Go to Dashboard
-                </a>
-              </div>
-            }
-          />
+          {/* 404 - Not Found - duplicate route removed */}
         </Routes>
       </Router>
     </AuthProvider>

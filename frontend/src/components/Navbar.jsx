@@ -26,7 +26,7 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <Link to="/dashboard" className="navbar-brand">
-                <span style={{ fontSize: '1.5rem' }}>📋</span>
+                <span style={{ fontSize: '1.5rem' }}></span>
                 Smart Workflow
             </Link>
 
@@ -73,7 +73,7 @@ const Navbar = () => {
                                         }}
                                         onClick={() => setShowDropdown(false)}
                                     >
-                                        📱 Telegram Settings
+                                        Telegram Settings
                                     </Link>
                                     <Link
                                         to="/profile"
@@ -85,7 +85,7 @@ const Navbar = () => {
                                         }}
                                         onClick={() => setShowDropdown(false)}
                                     >
-                                        👤 My Profile
+                                        My Profile
                                     </Link>
                                     <button
                                         onClick={handleLogout}
@@ -100,7 +100,7 @@ const Navbar = () => {
                                             fontSize: 'var(--font-size-base)',
                                         }}
                                     >
-                                        🚪 Logout
+                                        Logout
                                     </button>
                                 </div>
                             )}

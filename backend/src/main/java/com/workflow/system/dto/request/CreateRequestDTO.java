@@ -7,8 +7,11 @@ import lombok.Data;
 
 @Data
 public class CreateRequestDTO {
-    @NotNull(message = "Request Type ID is required")
     private Long requestTypeId;
+
+    private String customRequestType;
+
+    private String assignedReviewerEmail;
 
     @NotBlank(message = "Title is required")
     private String title;

@@ -2,6 +2,7 @@ package com.workflow.system.service;
 
 import com.workflow.system.entity.Notification;
 import com.workflow.system.entity.User;
+import com.workflow.system.entity.enums.Role;
 import com.workflow.system.repository.NotificationRepository;
 import com.workflow.system.repository.UserRepository;
 import com.workflow.system.security.UserDetailsImpl;
@@ -26,6 +27,13 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setRelatedRequestId(relatedRequestId);
         notificationRepository.save(notification);
+    }
+
+    public void notifyAdmins(String message) {
+        List<User> admins = userRepository.findByRole(Role.ADMIN);
+        for (User admin : admins) {
+            createNotification(admin, message, null);
+        }
     }
 
     public List<Notification> getMyNotifications() {

@@ -1,27 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import requestService from '../services/requestService';
 import api from '../services/api';
 import FileUploader from '../components/FileUploader';
 
 const NewRequest = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [requestTypes, setRequestTypes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
 
+    const initialEmail = searchParams.get('email') || '';
+
     const [formData, setFormData] = useState({
         requestTypeId: '',
+        customRequestType: '',
         title: '',
         description: '',
-        priority: 'MEDIUM'
+        priority: 'MEDIUM',
+        assignedReviewerEmail: initialEmail
     });
+
+    const [reviewerInfo, setReviewerInfo] = useState(null);
+    const [reviewerError, setReviewerError] = useState('');
+    const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
     useEffect(() => {
         fetchRequestTypes();
     }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (formData.assignedReviewerEmail) {
+                checkReviewerEmail(formData.assignedReviewerEmail);
+            } else {
+                setReviewerInfo(null);
+                setReviewerError('');
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [formData.assignedReviewerEmail]);
+
+    const checkReviewerEmail = async (email) => {
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setReviewerError('Invalid email format');
+            setReviewerInfo(null);
+            return;
+        }
+
+        setIsCheckingEmail(true);
+        setReviewerError('');
+        try {
+            const response = await api.get(`/users/by-email?email=${email}`);
+            setReviewerInfo(response.data);
+            setReviewerError('');
+        } catch (err) {
+            setReviewerInfo(null);
+            setReviewerError('User not found in system');
+        } finally {
+            setIsCheckingEmail(false);
+        }
+    };
 
     const fetchRequestTypes = async () => {
         try {
@@ -49,8 +94,16 @@ const NewRequest = () => {
         setLoading(true);
 
         try {
+            // Prepare data for submission
+            const submissionData = { ...formData };
+            if (submissionData.requestTypeId === 'others') {
+                submissionData.requestTypeId = null;
+            } else {
+                submissionData.customRequestType = null;
+            }
+
             // Create the request
-            const createdRequest = await requestService.createRequest(formData);
+            const createdRequest = await requestService.createRequest(submissionData);
 
             // Upload file if selected
             if (selectedFile) {
@@ -71,7 +124,7 @@ const NewRequest = () => {
 
     return (
         <div className="App">
-            <Navbar />
+
             <div className="app-content">
                 <div className="page-header">
                     <h1 className="page-title">Create New Request</h1>
@@ -102,7 +155,47 @@ const NewRequest = () => {
                                             {type.name}
                                         </option>
                                     ))}
+                                    <option value="others">Others</option>
                                 </select>
+                            </div>
+
+                            {formData.requestTypeId === 'others' && (
+                                <div className="form-group">
+                                    <label htmlFor="customRequestType">Specific Request Type *</label>
+                                    <input
+                                        type="text"
+                                        id="customRequestType"
+                                        name="customRequestType"
+                                        className="form-control"
+                                        value={formData.customRequestType}
+                                        onChange={handleChange}
+                                        placeholder="Enter request type (e.g. Budget Approval)"
+                                        required
+                                    />
+                                </div>
+                            )}
+
+                            <div className="form-group">
+                                <label htmlFor="assignedReviewerEmail">Assign Reviewer (Email)</label>
+                                <input
+                                    type="email"
+                                    id="assignedReviewerEmail"
+                                    name="assignedReviewerEmail"
+                                    className="form-control"
+                                    value={formData.assignedReviewerEmail}
+                                    onChange={handleChange}
+                                    placeholder="Enter reviewer email (Optional)"
+                                />
+                                {isCheckingEmail && <small style={{ color: 'var(--color-primary)' }}>Checking user...</small>}
+                                {reviewerError && <small style={{ color: 'var(--alert-error-color, #dc3545)', display: 'block' }}>❌ {reviewerError}</small>}
+                                {reviewerInfo && (
+                                    <small style={{ color: 'var(--alert-success-color, #28a745)', display: 'block' }}>
+                                        ✅ User found: {reviewerInfo.fullName} ({reviewerInfo.department})
+                                    </small>
+                                )}
+                                <small style={{ color: 'var(--color-text-secondary)', display: 'block', marginTop: '4px' }}>
+                                    If left blank, the request will be routed to your manager or follow the default workflow.
+                                </small>
                             </div>
 
                             <div className="form-group">
@@ -149,10 +242,6 @@ const NewRequest = () => {
                                 </select>
                             </div>
 
-                            import FileUploader from '../components/FileUploader';
-
-                            // ... (in component body)
-
                             <div className="form-group">
                                 <label>Attachment (Optional)</label>
                                 <FileUploader
@@ -160,9 +249,6 @@ const NewRequest = () => {
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt"
                                     label="Drag & drop your document here, or click to browse"
                                 />
-                                <small style={{ color: 'var(--color-text-secondary)', display: 'block', marginTop: '8px' }}>
-                                    Allowed: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, TXT (Max 10MB)
-                                </small>
                             </div>
 
                             <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-xl)' }}>

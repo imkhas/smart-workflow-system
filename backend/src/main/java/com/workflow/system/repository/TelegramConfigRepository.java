@@ -3,6 +3,7 @@ package com.workflow.system.repository;
 import com.workflow.system.entity.TelegramConfig;
 import com.workflow.system.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -19,4 +20,7 @@ public interface TelegramConfigRepository extends JpaRepository<TelegramConfig, 
     Boolean existsByUserId(Long userId);
 
     Boolean existsByChatId(String chatId);
+
+    @Transactional
+    void deleteByUserId(Long userId);
 }

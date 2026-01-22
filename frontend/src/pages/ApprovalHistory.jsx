@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+
 import approvalService from '../services/approvalService';
 
 const ApprovalHistory = () => {
@@ -56,7 +56,7 @@ const ApprovalHistory = () => {
     if (loading) {
         return (
             <div className="App">
-                <Navbar />
+
                 <div className="app-content">
                     <div style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
                         <div className="spinner spinner-lg"></div>
@@ -71,7 +71,7 @@ const ApprovalHistory = () => {
 
     return (
         <div className="App">
-            <Navbar />
+
             <div className="app-content">
                 <div className="page-header">
                     <h1 className="page-title">My Approval History</h1>
@@ -87,7 +87,7 @@ const ApprovalHistory = () => {
                     <div className="card-body">
                         {requests.length === 0 ? (
                             <div className="empty-state">
-                                <div className="empty-state-icon">📋</div>
+                                <div className="empty-state-icon"></div>
                                 <h3>No History Yet</h3>
                                 <p>You haven't approved or rejected any requests yet.</p>
                             </div>

@@ -14,7 +14,10 @@ public class RequestResponse {
     private Long id;
     private String requesterName;
     private String requestTypeName;
+    private String customRequestType;
     private String workflowName;
+    private String assignedReviewerName;
+    private String assignedReviewerEmail;
     private String title;
     private String description;
     private RequestStatus status;
@@ -30,7 +33,18 @@ public class RequestResponse {
         RequestResponse response = new RequestResponse();
         response.setId(request.getId());
         response.setRequesterName(request.getRequester().getFullName());
-        response.setRequestTypeName(request.getRequestType().getName());
+        if (request.getRequestType() != null) {
+            response.setRequestTypeName(request.getRequestType().getName());
+        } else {
+            response.setRequestTypeName(request.getCustomRequestType());
+        }
+        response.setCustomRequestType(request.getCustomRequestType());
+
+        if (request.getAssignedReviewer() != null) {
+            response.setAssignedReviewerName(request.getAssignedReviewer().getFullName());
+            response.setAssignedReviewerEmail(request.getAssignedReviewer().getEmail());
+        }
+
         if (request.getWorkflow() != null) {
             response.setWorkflowName(request.getWorkflow().getName());
         }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+
 import requestService from '../services/requestService';
 import approvalService from '../services/approvalService';
 import api from '../services/api';
@@ -140,11 +140,11 @@ const RequestDetails = () => {
 
     return (
         <div className="App">
-            <Navbar />
+
             <div className="app-content">
                 <div className="page-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <button onClick={() => navigate(-1)} className="btn btn-secondary btn-sm">← Back</button>
+                        <button onClick={() => navigate(-1)} className="btn btn-secondary btn-sm">Back</button>
                         <h1 className="page-title">Request #{request.id}</h1>
                     </div>
                     <span className={`badge ${getStatusBadgeClass(request.status)}`} style={{ fontSize: '1rem' }}>
@@ -197,13 +197,13 @@ const RequestDetails = () => {
                                         {request.approvalLogs.map((log, index) => (
                                             <div key={log.id} style={{
                                                 padding: '1rem',
-                                                borderLeft: `3px solid ${log.action === 'APPROVE' ? 'var(--color-success)' : 'var(--color-danger)'}`,
+                                                borderLeft: `3px solid ${log.action === 'APPROVED' ? 'var(--color-success)' : 'var(--color-danger)'}`,
                                                 backgroundColor: 'var(--color-bg-secondary)',
                                                 borderRadius: '4px'
                                             }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                                     <strong>{log.approverName}</strong>
-                                                    <span className={`badge ${log.action === 'APPROVE' ? 'badge-success' : 'badge-danger'}`}>
+                                                    <span className={`badge ${log.action === 'APPROVED' ? 'badge-success' : 'badge-danger'}`}>
                                                         {log.action}
                                                     </span>
                                                 </div>
@@ -330,7 +330,7 @@ const RequestDetails = () => {
                                                 border: '1px solid var(--color-border)'
                                             }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                    <div style={{ fontSize: '1.5rem' }}>📄</div>
+                                                    <div style={{ fontSize: '1.5rem' }}></div>
                                                     <div>
                                                         <div style={{ fontWeight: '500' }}>{file.fileName}</div>
                                                         <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
@@ -348,7 +348,7 @@ const RequestDetails = () => {
                                                         handleDownload(file);
                                                     }}
                                                 >
-                                                    ⬇️
+                                                    Download
                                                 </a>
                                             </div>
                                         ))}

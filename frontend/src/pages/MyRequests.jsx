@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+
 import requestService from '../services/requestService';
 
 const MyRequests = () => {
@@ -57,7 +57,7 @@ const MyRequests = () => {
     if (loading) {
         return (
             <div className="App">
-                <Navbar />
+
                 <div className="app-content">
                     <div style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
                         <div className="spinner spinner-lg"></div>
@@ -72,12 +72,12 @@ const MyRequests = () => {
 
     return (
         <div className="App">
-            <Navbar />
+
             <div className="app-content">
                 <div className="page-header">
                     <h1 className="page-title">My Requests</h1>
                     <Link to="/requests/new" className="btn btn-primary">
-                        ➕ New Request
+                        New Request
                     </Link>
                 </div>
 
@@ -91,7 +91,7 @@ const MyRequests = () => {
                     <div className="card-body">
                         {requests.length === 0 ? (
                             <div className="empty-state">
-                                <div className="empty-state-icon">📭</div>
+                                <div className="empty-state-icon"></div>
                                 <h3>No requests yet</h3>
                                 <p>Create your first workflow request to get started</p>
                                 <Link

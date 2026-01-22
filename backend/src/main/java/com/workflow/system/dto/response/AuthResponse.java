@@ -16,10 +16,11 @@ public class AuthResponse {
     private String fullName;
     private String role;
     private String department;
+    private String profilePicture;
 
     // Constructor without type
     public AuthResponse(String accessToken, Long id, String username, String email, String fullName, String role,
-            String department) {
+            String department, String profilePicture) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
@@ -27,5 +28,6 @@ public class AuthResponse {
         this.fullName = fullName;
         this.role = role;
         this.department = department;
+        this.profilePicture = profilePicture;
     }
 }

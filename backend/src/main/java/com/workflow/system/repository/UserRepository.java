@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByActiveTrue();
 
     List<User> findByDepartment(String department);
+
+    Optional<User> findByTelegramLinkingToken(String token);
 }

@@ -38,6 +38,37 @@ public class FileStorageService {
         }
     }
 
+    public String storeImage(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Cannot upload empty file");
+        }
+
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String extension = FilenameUtils.getExtension(originalFilename);
+
+        // Validate image type
+        String[] allowedExtensions = { "jpg", "jpeg", "png", "gif" };
+        boolean isAllowed = false;
+        for (String ext : allowedExtensions) {
+            if (ext.equalsIgnoreCase(extension)) {
+                isAllowed = true;
+                break;
+            }
+        }
+        if (!isAllowed) {
+            throw new IllegalArgumentException("File type not allowed: " + extension);
+        }
+
+        try {
+            String storedFilename = UUID.randomUUID().toString() + "." + extension;
+            Path targetLocation = this.fileStorageLocation.resolve(storedFilename);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            return storedFilename;
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not store image " + originalFilename, ex);
+        }
+    }
+
     public Attachment storeFile(MultipartFile file, Request request, User uploadedBy) {
         // Validate file
         if (file.isEmpty()) {

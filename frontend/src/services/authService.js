@@ -7,7 +7,7 @@ const authService = {
         const response = await api.post('/auth/login', credentials);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
-            
+
             // Backend returns: {token, id, username, email, fullName, role, department}
             // Convert to user object for frontend
             const user = {
@@ -16,10 +16,11 @@ const authService = {
                 email: response.data.email,
                 fullName: response.data.fullName,
                 role: response.data.role,
-                department: response.data.department
+                department: response.data.department,
+                profilePicture: response.data.profilePicture
             };
             localStorage.setItem('user', JSON.stringify(user));
-            
+
             return { ...response.data, user }; // Return with user object
         }
         return response.data;
@@ -28,7 +29,7 @@ const authService = {
     // Register
     register: async (userData) => {
         const response = await api.post('/auth/register', userData);
-        
+
         // Register returns MessageResponse, need to login after
         if (response.data.message === 'User registered successfully!') {
             // Auto-login after successful registration

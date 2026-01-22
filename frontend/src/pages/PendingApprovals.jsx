@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+
 import approvalService from '../services/approvalService';
 
 const PendingApprovals = () => {
@@ -46,7 +46,7 @@ const PendingApprovals = () => {
     if (loading) {
         return (
             <div className="App">
-                <Navbar />
+
                 <div className="app-content">
                     <div style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
                         <div className="spinner spinner-lg"></div>
@@ -61,7 +61,7 @@ const PendingApprovals = () => {
 
     return (
         <div className="App">
-            <Navbar />
+
             <div className="app-content">
                 <div className="page-header">
                     <h1 className="page-title">Pending Approvals</h1>
@@ -77,7 +77,7 @@ const PendingApprovals = () => {
                     <div className="card-body">
                         {requests.length === 0 ? (
                             <div className="empty-state">
-                                <div className="empty-state-icon">✅</div>
+                                <div className="empty-state-icon"></div>
                                 <h3>All Caught Up!</h3>
                                 <p>You have no pending requests to approve at this time.</p>
                             </div>

@@ -110,7 +110,7 @@ const FileUploader = ({ onFileSelect, accept, label = "Drag & drop a file here, 
 
                 {selectedFile ? (
                     <div className="file-preview" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-                        <div style={{ fontSize: '2rem' }}>📄</div>
+                        <div style={{ fontSize: '2rem' }}></div>
                         <div style={{ textAlign: 'left' }}>
                             <div style={{ fontWeight: '500' }}>{selectedFile.name}</div>
                             <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
@@ -123,13 +123,13 @@ const FileUploader = ({ onFileSelect, accept, label = "Drag & drop a file here, 
                             className="btn btn-sm btn-danger"
                             style={{ marginLeft: '1rem', padding: '0.25rem 0.5rem' }}
                         >
-                            ✕
+                            Remove
                         </button>
                     </div>
                 ) : (
                     <div className="upload-placeholder">
                         <div style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>
-                            ☁️
+                            Upload
                         </div>
                         <p style={{ margin: 0, fontWeight: '500' }}>
                             {label}

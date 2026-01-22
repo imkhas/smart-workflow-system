@@ -8,6 +8,7 @@ import com.workflow.system.repository.UserRepository;
 import com.workflow.system.security.UserDetailsImpl;
 import com.workflow.system.service.TelegramService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/telegram")
 public class TelegramController {
+
+    @Value("${telegram.bot.username:}")
+    private String botUsername;
 
     @Autowired
     private TelegramConfigRepository telegramConfigRepository;
@@ -78,6 +82,31 @@ public class TelegramController {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Failed to send test notification: " + e.getMessage()));
         }
+    }
+
+    @DeleteMapping("/disconnect")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> disconnectTelegram() {
+        User currentUser = getCurrentUser();
+        telegramConfigRepository.deleteByUserId(currentUser.getId());
+
+        // Also clear the linking token to be clean
+        currentUser.setTelegramLinkingToken(null);
+        userRepository.save(currentUser);
+
+        return ResponseEntity.ok(new MessageResponse("Telegram account disconnected successfully"));
+    }
+
+    @GetMapping("/get-link")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getTelegramLink() {
+        User currentUser = getCurrentUser();
+        String token = java.util.UUID.randomUUID().toString();
+        currentUser.setTelegramLinkingToken(token);
+        userRepository.save(currentUser);
+
+        String botLink = "https://t.me/" + botUsername + "?start=" + token;
+        return ResponseEntity.ok(new MessageResponse(botLink));
     }
 
     private User getCurrentUser() {

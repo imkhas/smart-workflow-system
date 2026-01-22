@@ -25,46 +25,58 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/dashboard")
 public class DashboardController {
 
-    @Autowired
-    private RequestRepository requestRepository;
+        @Autowired
+        private RequestRepository requestRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @GetMapping("/statistics")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getStatistics() {
-        User currentUser = getCurrentUser();
+        @GetMapping("/statistics")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<?> getStatistics() {
+                User currentUser = getCurrentUser();
+                Long userId = currentUser.getId();
 
-        // Get all requests submitted by the current user
-        List<Request> allRequests = requestRepository.findByRequesterId(currentUser.getId());
+                // Get requests submitted by the current user
+                List<Request> mySubmissions = requestRepository.findByRequesterId(userId);
 
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalRequests", allRequests.size());
+                // Get requests assigned to the current user for review
+                List<Request> assignedToMe = requestRepository.findByAssignedReviewerId(userId);
 
-        stats.put("pendingRequests", allRequests.stream()
-                .filter(r -> r.getStatus() == RequestStatus.PENDING).count());
+                // Merge and remove duplicates
+                Map<Long, Request> involvedRequestsMap = new HashMap<>();
+                mySubmissions.forEach(r -> involvedRequestsMap.put(r.getId(), r));
+                assignedToMe.forEach(r -> involvedRequestsMap.put(r.getId(), r));
 
-        stats.put("approvedRequests", allRequests.stream()
-                .filter(r -> r.getStatus() == RequestStatus.APPROVED).count());
+                List<Request> allInvolvedRequests = involvedRequestsMap.values().stream().collect(Collectors.toList());
 
-        stats.put("rejectedRequests", allRequests.stream()
-                .filter(r -> r.getStatus() == RequestStatus.REJECTED).count());
+                Map<String, Object> stats = new HashMap<>();
+                stats.put("totalRequests", allInvolvedRequests.size());
 
-        // Get recent requests (last 5)
-        stats.put("recentRequests", allRequests.stream()
-                .sorted(Comparator.comparing(Request::getSubmittedAt).reversed())
-                .limit(5)
-                .map(RequestResponse::fromEntity)
-                .collect(Collectors.toList()));
+                stats.put("pendingRequests", allInvolvedRequests.stream()
+                                .filter(r -> r.getStatus() == RequestStatus.PENDING).count());
 
-        return ResponseEntity.ok(stats);
-    }
+                stats.put("approvedRequests", allInvolvedRequests.stream()
+                                .filter(r -> r.getStatus() == RequestStatus.APPROVED).count());
 
-    private User getCurrentUser() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        return userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
+                stats.put("rejectedRequests", allInvolvedRequests.stream()
+                                .filter(r -> r.getStatus() == RequestStatus.REJECTED).count());
+
+                // Get recent requests (last 5)
+                stats.put("recentRequests", allInvolvedRequests.stream()
+                                .sorted(Comparator.comparing(Request::getUpdatedAt,
+                                                Comparator.nullsLast(Comparator.reverseOrder())))
+                                .limit(5)
+                                .map(RequestResponse::fromEntity)
+                                .collect(Collectors.toList()));
+
+                return ResponseEntity.ok(stats);
+        }
+
+        private User getCurrentUser() {
+                UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                                .getContext().getAuthentication().getPrincipal();
+                return userRepository.findById(userDetails.getId())
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+        }
 }

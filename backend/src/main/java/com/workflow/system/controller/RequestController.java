@@ -4,15 +4,11 @@ import com.workflow.system.dto.request.CreateRequestDTO;
 import com.workflow.system.dto.request.UpdateRequestDTO;
 import com.workflow.system.dto.response.MessageResponse;
 import com.workflow.system.dto.response.RequestResponse;
-import com.workflow.system.entity.Request;
 import com.workflow.system.entity.enums.Priority;
 import com.workflow.system.entity.enums.RequestStatus;
-import com.workflow.system.repository.RequestRepository;
 import com.workflow.system.service.RequestService;
-import com.workflow.system.specification.RequestSpecification;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/requests")
@@ -29,9 +24,6 @@ public class RequestController {
 
     @Autowired
     private RequestService requestService;
-
-    @Autowired
-    private RequestRepository requestRepository;
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
@@ -112,13 +104,7 @@ public class RequestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-        Specification<Request> spec = RequestSpecification.filterRequests(
-                keyword, status, priority, null, startDate, endDate);
-
-        List<Request> requests = requestRepository.findAll(spec);
-        return ResponseEntity.ok(
-                requests.stream()
-                        .map(RequestResponse::fromEntity)
-                        .collect(Collectors.toList()));
+        return ResponseEntity.ok(requestService.searchRequests(
+                keyword, status, priority, startDate, endDate));
     }
 }

@@ -30,8 +30,15 @@ public class Request {
     private User requester;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_type_id", nullable = false)
+    @JoinColumn(name = "request_type_id")
     private RequestType requestType;
+
+    @Column(name = "custom_request_type")
+    private String customRequestType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_reviewer_id")
+    private User assignedReviewer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_id")
@@ -57,6 +64,9 @@ public class Request {
 
     @Column
     private LocalDateTime submittedAt;
+
+    @Column
+    private LocalDateTime currentStepStartedAt;
 
     @Column
     private LocalDateTime completedAt;

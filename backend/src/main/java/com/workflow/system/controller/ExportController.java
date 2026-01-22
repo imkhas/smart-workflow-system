@@ -22,33 +22,33 @@ import java.util.List;
 @RequestMapping("/api/export")
 public class ExportController {
 
-    @Autowired
-    private RequestRepository requestRepository;
+        @Autowired
+        private RequestRepository requestRepository;
 
-    @Autowired
-    private ExportService exportService;
+        @Autowired
+        private ExportService exportService;
 
-    @GetMapping("/requests/csv")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> exportRequestsToCSV(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) RequestStatus status,
-            @RequestParam(required = false) Priority priority,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        @GetMapping("/requests/csv")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<String> exportRequestsToCSV(
+                        @RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) RequestStatus status,
+                        @RequestParam(required = false) Priority priority,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-        Specification<Request> spec = RequestSpecification.filterRequests(
-                keyword, status, priority, null, startDate, endDate);
+                Specification<Request> spec = RequestSpecification.filterRequests(
+                                keyword, status, priority, null, null, null, startDate, endDate);
 
-        List<Request> requests = requestRepository.findAll(spec);
-        String csv = exportService.exportRequestsToCSV(requests);
+                List<Request> requests = requestRepository.findAll(spec);
+                String csv = exportService.exportRequestsToCSV(requests);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("text/csv"));
-        headers.setContentDispositionFormData("attachment", "requests_export.csv");
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.parseMediaType("text/csv"));
+                headers.setContentDispositionFormData("attachment", "requests_export.csv");
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(csv);
-    }
+                return ResponseEntity.ok()
+                                .headers(headers)
+                                .body(csv);
+        }
 }

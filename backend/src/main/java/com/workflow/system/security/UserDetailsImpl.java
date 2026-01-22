@@ -26,6 +26,8 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
     private String fullName;
     private String department;
+    private String profilePicture;
+    private boolean active;
     private Collection<? extends GrantedAuthority> authorities;
 
     public static UserDetailsImpl build(User user) {
@@ -39,6 +41,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPasswordHash(),
                 user.getFullName(),
                 user.getDepartment(),
+                user.getProfilePicture(),
+                user.getActive(),
                 authorities);
     }
 
@@ -74,7 +78,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
 
     @Override
@@ -85,5 +89,10 @@ public class UserDetailsImpl implements UserDetails {
             return false;
         UserDetailsImpl user = (UserDetailsImpl) o;
         return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

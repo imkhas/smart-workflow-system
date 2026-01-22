@@ -4,11 +4,15 @@ import com.workflow.system.dto.request.CreateRequestDTO;
 import com.workflow.system.dto.request.UpdateRequestDTO;
 import com.workflow.system.dto.response.RequestResponse;
 import com.workflow.system.entity.*;
+import com.workflow.system.entity.enums.Priority;
 import com.workflow.system.entity.enums.RequestStatus;
+import com.workflow.system.entity.enums.Role;
 import com.workflow.system.exception.ResourceNotFoundException;
 import com.workflow.system.repository.*;
 import com.workflow.system.security.UserDetailsImpl;
+import com.workflow.system.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,7 +47,11 @@ public class RequestService {
     private User getCurrentUser() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
-        return userRepository.findById(userDetails.getId())
+        Long userId = userDetails.getId();
+        if (userId == null) {
+            throw new ResourceNotFoundException("User ID not found in session");
+        }
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
@@ -51,17 +59,48 @@ public class RequestService {
     public RequestResponse createRequest(CreateRequestDTO dto) {
         User currentUser = getCurrentUser();
 
-        RequestType requestType = requestTypeRepository.findById(dto.getRequestTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Request type not found"));
+        RequestType requestType = null;
+        Workflow workflow = null;
 
-        // Find active workflow for this request type
-        Workflow workflow = workflowRepository.findByRequestTypeIdAndActiveTrue(dto.getRequestTypeId())
-                .orElse(null);
+        if (dto.getRequestTypeId() != null) {
+            Long requestTypeId = dto.getRequestTypeId();
+            if (requestTypeId == null) {
+                throw new ResourceNotFoundException("Request type ID is null");
+            }
+            requestType = requestTypeRepository.findById(requestTypeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Request type not found"));
+
+            // Find active workflow for this request type
+            workflow = workflowRepository.findByRequestTypeIdAndActiveTrue(dto.getRequestTypeId())
+                    .orElse(null);
+        } else if (dto.getCustomRequestType() != null && !dto.getCustomRequestType().isEmpty()) {
+            // Ad-hoc request, no pre-defined type or workflow yet
+            // If requestTypeId was passed as something else but invalid, we fall here?
+            // Ideally frontend ensures requestTypeId is null if custom is sent, or we
+            // handle "others" logic here if strictly enforcing it.
+            // Current flow: Frontend sends requestTypeId=null/empty if "Others" is picked,
+            // or valid ID.
+        } else {
+            // If both are empty, that's an issue, but validation might handle it or we
+            // throw
+            throw new IllegalArgumentException("Either Request Type or Custom Request Type must be provided");
+        }
 
         Request request = new Request();
         request.setRequester(currentUser);
         request.setRequestType(requestType);
+        if (requestType == null) {
+            request.setCustomRequestType(dto.getCustomRequestType());
+        }
         request.setWorkflow(workflow);
+
+        if (dto.getAssignedReviewerEmail() != null && !dto.getAssignedReviewerEmail().isEmpty()) {
+            User assignedReviewer = userRepository.findByEmail(dto.getAssignedReviewerEmail())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "User with email " + dto.getAssignedReviewerEmail() + " not found"));
+            request.setAssignedReviewer(assignedReviewer);
+        }
+
         request.setTitle(dto.getTitle());
         request.setDescription(dto.getDescription());
         request.setPriority(dto.getPriority());
@@ -156,13 +195,14 @@ public class RequestService {
             throw new IllegalStateException("Request is already submitted");
         }
 
-        // Check if workflow exists
-        if (request.getWorkflow() == null) {
-            throw new IllegalStateException("No workflow configured for this request type");
+        // Check if workflow exists or assigned reviewer
+        if (request.getWorkflow() == null && request.getAssignedReviewer() == null) {
+            throw new IllegalStateException("No workflow or reviewer configured for this request");
         }
 
         request.setStatus(RequestStatus.PENDING);
         request.setSubmittedAt(LocalDateTime.now());
+        request.setCurrentStepStartedAt(LocalDateTime.now());
         request.setCurrentStep(1); // Move to first approval step
 
         Request submittedRequest = requestRepository.save(request);
@@ -219,6 +259,11 @@ public class RequestService {
             return true;
         }
 
+        // Direct assignee has rights
+        if (request.getAssignedReviewer() != null) {
+            return request.getAssignedReviewer().getId().equals(user.getId());
+        }
+
         // Managers can view requests in their approval workflow
         if (user.getRole().name().equals("MANAGER") && request.getWorkflow() != null) {
             return request.getWorkflow().getSteps().stream()
@@ -226,5 +271,31 @@ public class RequestService {
         }
 
         return false;
+    }
+
+    public List<RequestResponse> searchRequests(
+            String keyword,
+            RequestStatus status,
+            Priority priority,
+            LocalDateTime startDate,
+            LocalDateTime endDate) {
+
+        User currentUser = getCurrentUser();
+        Long requesterId = null;
+        Long involvedUserId = null;
+
+        // If user is STAFF, they can see requests where they are requester OR assigned
+        // reviewer
+        if (currentUser.getRole() == Role.STAFF) {
+            involvedUserId = currentUser.getId();
+        }
+
+        Specification<Request> spec = RequestSpecification.filterRequests(
+                keyword, status, priority, requesterId, null, involvedUserId, startDate, endDate);
+
+        List<Request> requests = requestRepository.findAll(spec);
+        return requests.stream()
+                .map(RequestResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 }

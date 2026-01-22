@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const SearchRequests = () => {
+    const { user } = useAuth();
+    const isStaff = user?.role === 'STAFF';
+    const pageTitle = isStaff ? 'Search My History' : 'Global Search Requests';
+
     const [filters, setFilters] = useState({
         keyword: '',
         status: '',
@@ -13,9 +18,23 @@ const SearchRequests = () => {
     });
 
     const [results, setResults] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [searched, setSearched] = useState(false);
+
+    useEffect(() => {
+        // Initial search to load all requests
+        const loadInitialData = async () => {
+            try {
+                const response = await api.get('/requests/search');
+                setResults(response.data);
+            } catch (err) {
+                console.error('Failed to load initial requests:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadInitialData();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -29,7 +48,6 @@ const SearchRequests = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-        setSearched(true);
 
         try {
             const params = new URLSearchParams();
@@ -63,9 +81,9 @@ const SearchRequests = () => {
             startDate: '',
             endDate: ''
         });
-        setResults([]);
-        setSearched(false);
         setError('');
+        // Reload all data
+        handleSearch({ preventDefault: () => { } });
     };
 
     const getStatusBadgeClass = (status) => {
@@ -99,15 +117,20 @@ const SearchRequests = () => {
 
     return (
         <div className="App">
-            <Navbar />
+
             <div className="app-content">
                 <div className="page-header">
-                    <h1 className="page-title">Search Requests</h1>
+                    <h1 className="page-title">{pageTitle}</h1>
                 </div>
 
                 {/* Search Form */}
                 <div className="card" style={{ marginBottom: 'var(--spacing-lg)' }}>
                     <div className="card-body">
+                        {isStaff && (
+                            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-md)' }}>
+                                Showing your personal history and requests you're asked to review.
+                            </p>
+                        )}
                         <form onSubmit={handleSearch}>
                             <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
                                 {/* Keyword */}
@@ -203,70 +226,73 @@ const SearchRequests = () => {
                 )}
 
                 {/* Results */}
-                {searched && (
-                    <div className="card">
-                        <div className="card-header">
-                            <h3>Search Results ({results.length})</h3>
-                        </div>
-                        <div className="card-body">
-                            {results.length === 0 ? (
-                                <div className="empty-state">
-                                    <div className="empty-state-icon">🔍</div>
-                                    <h3>No Results Found</h3>
-                                    <p>Try adjusting your search filters.</p>
-                                </div>
-                            ) : (
-                                <div className="table-container">
-                                    <table className="table">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Title</th>
-                                                <th>Requester</th>
-                                                <th>Type</th>
-                                                <th>Status</th>
-                                                <th>Priority</th>
-                                                <th>Submitted</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {results.map((request) => (
-                                                <tr key={request.id}>
-                                                    <td>#{request.id}</td>
-                                                    <td>
-                                                        <strong>{request.title}</strong>
-                                                    </td>
-                                                    <td>{request.requesterName}</td>
-                                                    <td>{request.requestTypeName}</td>
-                                                    <td>
-                                                        <span className={`badge ${getStatusBadgeClass(request.status)}`}>
-                                                            {request.status}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <span className={`badge ${getPriorityBadgeClass(request.priority)}`}>
-                                                            {request.priority}
-                                                        </span>
-                                                    </td>
-                                                    <td>{formatDate(request.submittedAt)}</td>
-                                                    <td>
-                                                        <Link
-                                                            to={`/requests/${request.id}`}
-                                                            className="btn btn-sm btn-primary"
-                                                        >
-                                                            View
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
+                <div className="card">
+                    <div className="card-header">
+                        <h3>Search Results ({results.length})</h3>
                     </div>
-                )}
+                    <div className="card-body">
+                        {loading ? (
+                            <div style={{ textAlign: 'center', padding: 'var(--spacing-lg)' }}>
+                                <div className="spinner"></div>
+                                <p>Loading results...</p>
+                            </div>
+                        ) : results.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-state-icon"></div>
+                                <h3>No Results Found</h3>
+                                <p>Try adjusting your search filters.</p>
+                            </div>
+                        ) : (
+                            <div className="table-container">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Title</th>
+                                            <th>Requester</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
+                                            <th>Priority</th>
+                                            <th>Submitted</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {results.map((request) => (
+                                            <tr key={request.id}>
+                                                <td>#{request.id}</td>
+                                                <td>
+                                                    <strong>{request.title}</strong>
+                                                </td>
+                                                <td>{request.requesterName}</td>
+                                                <td>{request.requestTypeName}</td>
+                                                <td>
+                                                    <span className={`badge ${getStatusBadgeClass(request.status)}`}>
+                                                        {request.status}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className={`badge ${getPriorityBadgeClass(request.priority)}`}>
+                                                        {request.priority}
+                                                    </span>
+                                                </td>
+                                                <td>{formatDate(request.submittedAt)}</td>
+                                                <td>
+                                                    <Link
+                                                        to={`/requests/${request.id}`}
+                                                        className="btn btn-sm btn-primary"
+                                                    >
+                                                        View
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

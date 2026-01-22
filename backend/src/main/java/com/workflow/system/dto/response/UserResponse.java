@@ -16,6 +16,12 @@ public class UserResponse {
     private String phone;
     private Role role;
     private Boolean active;
+    private String profilePicture;
+    private String address;
+    private String facebook;
+    private String twitter;
+    private String googlePlus;
+    private String tags;
     private LocalDateTime createdAt;
 
     public static UserResponse fromEntity(User user) {
@@ -28,6 +34,12 @@ public class UserResponse {
         response.setPhone(user.getPhone());
         response.setRole(user.getRole());
         response.setActive(user.getActive());
+        response.setProfilePicture(user.getProfilePicture());
+        response.setAddress(user.getAddress());
+        response.setFacebook(user.getFacebook());
+        response.setTwitter(user.getTwitter());
+        response.setGooglePlus(user.getGooglePlus());
+        response.setTags(user.getTags());
         response.setCreatedAt(user.getCreatedAt());
         return response;
     }

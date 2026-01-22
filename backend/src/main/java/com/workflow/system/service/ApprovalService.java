@@ -58,6 +58,11 @@ public class ApprovalService {
     }
 
     private boolean isApproverForRequest(User user, Request request) {
+        // Priority 1: Direct assignment
+        if (request.getAssignedReviewer() != null) {
+            return request.getAssignedReviewer().getId().equals(user.getId());
+        }
+
         if (request.getWorkflow() == null || request.getCurrentStep() == null) {
             return false;
         }
@@ -95,6 +100,7 @@ public class ApprovalService {
         if (nextStep != null) {
             // Move to next step
             request.setCurrentStep(nextStep.getStepOrder());
+            request.setCurrentStepStartedAt(LocalDateTime.now());
         } else {
             // No more steps, fully approved
             request.setStatus(RequestStatus.APPROVED);

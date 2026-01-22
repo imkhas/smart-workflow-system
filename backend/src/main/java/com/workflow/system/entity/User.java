@@ -53,7 +53,28 @@ public class User {
     private Role role = Role.STAFF;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    private Boolean active = false;
+
+    @Column(name = "telegram_linking_token", length = 36)
+    private String telegramLinkingToken;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "facebook")
+    private String facebook;
+
+    @Column(name = "twitter")
+    private String twitter;
+
+    @Column(name = "google_plus")
+    private String googlePlus;
+
+    @Column(name = "tags")
+    private String tags;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

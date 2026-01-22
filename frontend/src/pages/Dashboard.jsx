@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Navbar from '../components/Navbar';
+
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -55,11 +55,10 @@ const Dashboard = () => {
 
     return (
         <div className="App">
-            <Navbar />
-            <div className="app-content">
+            <div className="app-content" style={{ padding: 0 }}>
                 <div className="dashboard-header">
                     <h1 className="page-title">
-                        Welcome back, {user?.fullName || 'User'}! 👋
+                        Welcome back, {user?.fullName || 'User'}!
                     </h1>
                     <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-sm)' }}>
                         Here's what's happening with your workflow requests
@@ -96,30 +95,7 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        {/* Quick Actions */}
-                        <div className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
-                            <div className="card-header">
-                                <h3 style={{ margin: 0 }}>Quick Actions</h3>
-                            </div>
-                            <div className="card-body">
-                                <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
-                                    <Link to="/requests/new" className="btn btn-primary">
-                                        ➕ New Request
-                                    </Link>
-                                    <Link to="/requests" className="btn btn-secondary">
-                                        📋 My Requests
-                                    </Link>
-                                    {(user?.role === 'MANAGER' || user?.role === 'ADMIN') && (
-                                        <Link to="/approvals/pending" className="btn btn-secondary">
-                                            ✅ Pending Approvals
-                                        </Link>
-                                    )}
-                                    <Link to="/search" className="btn btn-secondary">
-                                        🔍 Search Requests
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
+
 
                         {/* Recent Requests */}
                         <div className="card">
@@ -129,7 +105,7 @@ const Dashboard = () => {
                             <div className="card-body">
                                 {stats.recentRequests.length === 0 ? (
                                     <div className="empty-state">
-                                        <div className="empty-state-icon">📭</div>
+                                        <div className="empty-state-icon"></div>
                                         <h3>No requests yet</h3>
                                         <p>Get started by creating your first workflow request</p>
                                         <Link to="/requests/new" className="btn btn-primary" style={{ marginTop: 'var(--spacing-md)' }}>

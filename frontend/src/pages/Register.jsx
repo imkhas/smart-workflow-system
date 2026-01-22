@@ -16,6 +16,7 @@ const Register = () => {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleChange = (e) => {
         setFormData({
@@ -88,7 +89,7 @@ const Register = () => {
         setLoading(false);
 
         if (result.success) {
-            navigate('/dashboard');
+            setSuccessMessage(result.data.message || 'Registration submitted! Please wait for administrator approval.');
         } else {
             setErrors({ general: result.error });
         }
@@ -108,153 +109,173 @@ const Register = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <div className="form-group">
-                        <label htmlFor="username" className="form-label">
-                            Username *
-                        </label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            className="form-control"
-                            placeholder="Choose a username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                        {errors.username && (
-                            <span className="form-error">{errors.username}</span>
-                        )}
+                {successMessage ? (
+                    <div className="fade-in" style={{ textAlign: 'center' }}>
+                        <div style={{
+                            backgroundColor: '#ecfdf5',
+                            color: '#065f46',
+                            padding: '24px',
+                            borderRadius: '16px',
+                            marginBottom: '24px',
+                            border: '1px solid #a7f3d0'
+                        }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✔️</div>
+                            <h2 style={{ marginBottom: '8px' }}>Registration Received!</h2>
+                            <p>{successMessage}</p>
+                        </div>
+                        <Link to="/login" className="btn btn-primary" style={{ display: 'inline-block', textDecoration: 'none' }}>
+                            Back to Login
+                        </Link>
                     </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="form-group">
+                            <label htmlFor="username" className="form-label">
+                                Username *
+                            </label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                className="form-control"
+                                placeholder="Choose a username"
+                                value={formData.username}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            {errors.username && (
+                                <span className="form-error">{errors.username}</span>
+                            )}
+                        </div>
 
-                    <div className="form-group">
-                        <label htmlFor="email" className="form-label">
-                            Email *
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            className="form-control"
-                            placeholder="your.email@company.com"
-                            value={formData.email}
-                            onChange={handleChange}
+                        <div className="form-group">
+                            <label htmlFor="email" className="form-label">
+                                Email *
+                            </label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                className="form-control"
+                                placeholder="your.email@company.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            {errors.email && (
+                                <span className="form-error">{errors.email}</span>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="fullName" className="form-label">
+                                Full Name *
+                            </label>
+                            <input
+                                type="text"
+                                id="fullName"
+                                name="fullName"
+                                className="form-control"
+                                placeholder="John Doe"
+                                value={formData.fullName}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            {errors.fullName && (
+                                <span className="form-error">{errors.fullName}</span>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="department" className="form-label">
+                                Department *
+                            </label>
+                            <input
+                                type="text"
+                                id="department"
+                                name="department"
+                                className="form-control"
+                                placeholder="e.g., IT, HR, Finance"
+                                value={formData.department}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            {errors.department && (
+                                <span className="form-error">{errors.department}</span>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="phone" className="form-label">
+                                Phone Number
+                            </label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                className="form-control"
+                                placeholder="+60123456789"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="password" className="form-label">
+                                Password *
+                            </label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                className="form-control"
+                                placeholder="At least 6 characters"
+                                value={formData.password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            {errors.password && (
+                                <span className="form-error">{errors.password}</span>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="confirmPassword" className="form-label">
+                                Confirm Password *
+                            </label>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                className="form-control"
+                                placeholder="Re-enter your password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            {errors.confirmPassword && (
+                                <span className="form-error">{errors.confirmPassword}</span>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            style={{ width: '100%' }}
                             disabled={loading}
-                        />
-                        {errors.email && (
-                            <span className="form-error">{errors.email}</span>
-                        )}
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="fullName" className="form-label">
-                            Full Name *
-                        </label>
-                        <input
-                            type="text"
-                            id="fullName"
-                            name="fullName"
-                            className="form-control"
-                            placeholder="John Doe"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                        {errors.fullName && (
-                            <span className="form-error">{errors.fullName}</span>
-                        )}
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="department" className="form-label">
-                            Department *
-                        </label>
-                        <input
-                            type="text"
-                            id="department"
-                            name="department"
-                            className="form-control"
-                            placeholder="e.g., IT, HR, Finance"
-                            value={formData.department}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                        {errors.department && (
-                            <span className="form-error">{errors.department}</span>
-                        )}
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="phone" className="form-label">
-                            Phone Number
-                        </label>
-                        <input
-                            type="tel"
-                            id="phone"
-                            name="phone"
-                            className="form-control"
-                            placeholder="+60123456789"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password" className="form-label">
-                            Password *
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            className="form-control"
-                            placeholder="At least 6 characters"
-                            value={formData.password}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                        {errors.password && (
-                            <span className="form-error">{errors.password}</span>
-                        )}
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="confirmPassword" className="form-label">
-                            Confirm Password *
-                        </label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            className="form-control"
-                            placeholder="Re-enter your password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                        {errors.confirmPassword && (
-                            <span className="form-error">{errors.confirmPassword}</span>
-                        )}
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        style={{ width: '100%' }}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <>
-                                <span className="spinner"></span>
-                                Creating account...
-                            </>
-                        ) : (
-                            'Create Account'
-                        )}
-                    </button>
-                </form>
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="spinner"></span>
+                                    Creating account...
+                                </>
+                            ) : (
+                                'Create Account'
+                            )}
+                        </button>
+                    </form>
+                )}
 
                 <div className="auth-footer">
                     <p>

@@ -4,6 +4,7 @@ import com.workflow.system.entity.Request;
 import com.workflow.system.entity.TelegramConfig;
 import com.workflow.system.entity.User;
 import com.workflow.system.repository.TelegramConfigRepository;
+import com.workflow.system.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,9 @@ public class TelegramService extends TelegramLongPollingBot {
     @Autowired
     private TelegramConfigRepository telegramConfigRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public String getBotUsername() {
         return botUsername;
@@ -44,15 +48,57 @@ public class TelegramService extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            if (messageText.equals("/start")) {
-                sendMessage(chatId, "Welcome to Workflow System Bot!\n\n" +
-                        "Your Chat ID is: " + chatId + "\n\n" +
-                        "Please copy this Chat ID and paste it in your Telegram Settings page in the Workflow System.");
+            log.info("Telegram message received from chatId {}: {}", chatId, messageText);
+
+            if (messageText.startsWith("/start")) {
+                String[] parts = messageText.split(" ");
+                if (parts.length > 1) {
+                    // Deep linking with token
+                    String token = parts[1];
+                    log.info("Received /start with token: {}", token);
+                    handleLinking(chatId, token);
+                } else {
+                    sendMessage(chatId, "Welcome to Workflow System Bot!\n\n" +
+                            "To connect your account, please click the 'Connect' button on the Telegram Settings page in the web application.");
+                }
             } else if (messageText.equals("/help")) {
                 sendMessage(chatId, "Available commands:\n" +
-                        "/start - Get your Chat ID\n" +
+                        "/start - Start the bot\n" +
                         "/help - Show this help message");
             }
+        }
+    }
+
+    private void handleLinking(long chatId, String token) {
+        log.info("Attempting to link chatId {} with token {}", chatId, token);
+        Optional<User> userOpt = userRepository.findByTelegramLinkingToken(token);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            log.info("Found user for token: {}", user.getEmail());
+
+            // Find or create config
+            TelegramConfig config = telegramConfigRepository.findByUserId(user.getId())
+                    .orElse(new TelegramConfig());
+
+            config.setUser(user);
+            config.setChatId(String.valueOf(chatId));
+            config.setEnabled(true);
+            telegramConfigRepository.save(config);
+            log.info("Telegram config saved for user {}", user.getEmail());
+
+            // Clear token
+            user.setTelegramLinkingToken(null);
+            userRepository.save(user);
+            log.info("Telegram linking token cleared for user {}", user.getEmail());
+
+            sendMessage(chatId, "✅ *Account Connected Successfully!*\n\n" +
+                    "Hello " + user.getFullName() + ", your Telegram is now linked to the Workflow System.\n" +
+                    "You will receive notifications here.");
+        } else {
+            log.warn("Invalid linking token: {}", token);
+            sendMessage(chatId, "❌ *Link Expired or Invalid*\n\n" +
+                    "This connection link is no longer valid. Please generate a new one from the Telegram Settings page.");
         }
     }
 
@@ -82,7 +128,7 @@ public class TelegramService extends TelegramLongPollingBot {
                         "Your request has been submitted for approval.",
                 request.getId(),
                 request.getTitle(),
-                request.getRequestType().getName(),
+                request.getRequestType() != null ? request.getRequestType().getName() : request.getCustomRequestType(),
                 request.getPriority(),
                 request.getStatus());
         sendNotificationToUser(request.getRequester(), message);
@@ -139,7 +185,7 @@ public class TelegramService extends TelegramLongPollingBot {
                 request.getId(),
                 request.getTitle(),
                 request.getRequester().getFullName(),
-                request.getRequestType().getName(),
+                request.getRequestType() != null ? request.getRequestType().getName() : request.getCustomRequestType(),
                 request.getPriority());
         sendNotificationToUser(approver, message);
     }

@@ -7,19 +7,55 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+.classpath
+.project
+.settings/
 
 # Environment
 .env
 .env.local
+.env.*
+
+# Secrets & Credentials
+*.key
+*.pem
+*.p12
+secrets.properties
+telegram.properties
+application-secrets.properties
+
+# CRITICAL: Application properties with real credentials
+backend/src/main/resources/application.properties
+backend/src/main/resources/application-dev.properties
 
 # Logs
 *.log
 
-# Uploads
+# Build Outputs & Dependencies
+node_modules/
+target/
+dist/
+build/
+
+# Uploads (user-generated content)
 uploads/
+backend/uploads/
+
+# AI Assistant Artifacts (development planning documents)
+.gemini/
 
 # Project files (personal)
-README.md
 Plan.txt
 GIT_PUSH_CHECKLIST.md
 check-git-safety.ps1
+*.local.*
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Package manager locks (keep only one)
+# Uncomment based on your preference:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

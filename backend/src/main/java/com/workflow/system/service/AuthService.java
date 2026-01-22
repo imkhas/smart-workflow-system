@@ -33,6 +33,9 @@ public class AuthService {
     @Autowired
     JwtTokenProvider jwtUtils;
 
+    @Autowired
+    NotificationService notificationService;
+
     public AuthResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -53,7 +56,8 @@ public class AuthService {
                 userDetails.getEmail(),
                 userDetails.getFullName(),
                 role,
-                userDetails.getDepartment());
+                userDetails.getDepartment(),
+                userDetails.getProfilePicture());
     }
 
     @Transactional
@@ -74,7 +78,7 @@ public class AuthService {
         user.setFullName(signUpRequest.getFullName());
         user.setDepartment(signUpRequest.getDepartment());
         user.setPhone(signUpRequest.getPhone());
-        user.setActive(true);
+        user.setActive(false);
 
         // Assign role
         String strRole = signUpRequest.getRole();
@@ -91,6 +95,10 @@ public class AuthService {
         user.setRole(role);
         userRepository.save(user);
 
-        return new MessageResponse("User registered successfully!");
+        // Notify admins about new registration
+        notificationService.notifyAdmins(
+                "New user registered: " + user.getFullName() + " (" + user.getUsername() + "). Approval required.");
+
+        return new MessageResponse("User registered successfully! Please wait for administrator approval.");
     }
 }

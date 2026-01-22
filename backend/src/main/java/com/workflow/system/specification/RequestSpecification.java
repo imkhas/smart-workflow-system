@@ -17,6 +17,8 @@ public class RequestSpecification {
             RequestStatus status,
             Priority priority,
             Long requesterId,
+            Long reviewerId,
+            Long involvedUserId,
             LocalDateTime startDate,
             LocalDateTime endDate) {
 
@@ -46,6 +48,18 @@ public class RequestSpecification {
             // Requester filter
             if (requesterId != null) {
                 predicates.add(criteriaBuilder.equal(root.get("requester").get("id"), requesterId));
+            }
+
+            // Reviewer filter
+            if (reviewerId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("assignedReviewer").get("id"), reviewerId));
+            }
+
+            // Involved user filter (requester OR reviewer)
+            if (involvedUserId != null) {
+                Predicate requesterMatch = criteriaBuilder.equal(root.get("requester").get("id"), involvedUserId);
+                Predicate reviewerMatch = criteriaBuilder.equal(root.get("assignedReviewer").get("id"), involvedUserId);
+                predicates.add(criteriaBuilder.or(requesterMatch, reviewerMatch));
             }
 
             // Date range filter (submitted date)

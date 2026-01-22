@@ -1,0 +1,40 @@
+# Application
+spring.application.name=smart-workflow-system
+server.port=8080
+
+# Active Profile
+spring.profiles.active=prod
+
+# Database Configuration (REPLACE WITH YOUR VALUES)
+spring.datasource.url=jdbc:postgresql://YOUR_DB_HOST:5432/YOUR_DB_NAME
+spring.datasource.username=YOUR_DB_USERNAME
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA Configuration
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# File Upload Configuration
+spring.servlet.multipart.enabled=true
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+file.upload-dir=./uploads
+
+# JWT Configuration (GENERATE YOUR OWN SECRET - MINIMUM 256 BITS)
+jwt.secret=REPLACE_WITH_YOUR_LONG_RANDOM_SECRET_KEY_HERE_MINIMUM_256_BITS
+jwt.expiration=86400000
+
+# Telegram Bot Configuration (GET FROM @BotFather)
+telegram.bot.token=YOUR_BOT_TOKEN_FROM_BOTFATHER
+telegram.bot.username=YOUR_BOT_USERNAME
+
+# Logging
+logging.level.root=WARN
+logging.level.com.workflow.system=INFO
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
+
+# CORS (Update with your actual frontend domain)
+cors.allowed-origins=https://your-frontend-domain.com
